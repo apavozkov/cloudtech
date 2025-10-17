@@ -1,1 +1,51 @@
+---
+- name: Create application directory
+  file:
+    path: /opt/flask-app
+    state: directory
+    owner: "{{ flask_app_user }}"
+    group: "{{ flask_app_user }}"
+    mode: '0755'
 
+- name: Copy Flask application
+  copy:
+    src: app.py
+    dest: /opt/flask-app/app.py
+    owner: "{{ flask_app_user }}"
+    group: "{{ flask_app_user }}"
+    mode: '0644'
+
+- name: Create virtual environment
+  pip:
+    name: virtualenv
+    executable: pip3
+    state: present
+
+- name: Setup Python virtual environment
+  pip:
+    requirements: /opt/flask-app/requirements.txt
+    virtualenv: /opt/flask-app/venv
+    virtualenv_python: python3
+
+- name: Create systemd service file
+  template:
+    src: app.service.j2
+    dest: /etc/systemd/system/flask-app.service
+    mode: '0644'
+
+- name: Configure Nginx
+  template:
+    src: nginx-site.j2
+    dest: /etc/nginx/sites-available/flask-app
+    mode: '0644'
+
+- name: Enable Nginx site
+  file:
+    src: /etc/nginx/sites-available/flask-app
+    dest: /etc/nginx/sites-enabled/flask-app
+    state: link
+
+- name: Remove default Nginx site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
