@@ -1,1 +1,41 @@
+---
+- name: Configure Ubuntu server with Flask app and Nginx
+  hosts: all
+  become: yes
+  vars:
+    flask_app_port: 5000
+    flask_app_user: "ubuntu"
+    
+  tasks:
+    - name: Update apt package cache
+      apt:
+        update_cache: yes
+        
+    - name: Install system dependencies
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - nginx
+          - git
+        state: present
 
+    - name: Ensure flask app user exists
+      user:
+        name: "{{ flask_app_user }}"
+        state: present
+        shell: /bin/bash
+
+    - name: Deploy Flask application
+      include_role:
+        name: flask-app
+
+    - name: Enable and start services
+      systemd:
+        name: "{{ item }}"
+        enabled: yes
+        state: started
+      loop:
+        - nginx
+        - flask-app
