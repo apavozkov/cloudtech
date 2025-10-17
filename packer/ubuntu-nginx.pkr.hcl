@@ -31,7 +31,6 @@ source "yandex" "ubuntu-nginx" {
 build {
   sources = ["source.yandex.ubuntu-nginx"]
 
-  # Ansible provisioner вместо shell
   provisioner "ansible" {
     playbook_file = "../ansible/playbook.yml"
     extra_arguments = [
