@@ -11,7 +11,7 @@ variable "subnet_id" {
 
 variable "yc_token" {
   type    = string
-  default = "<ваш_oauth_токен>"
+  default = "<oauth_токен>"
 }
 
 source "yandex" "ubuntu-nginx" {
@@ -40,7 +40,6 @@ build {
     user = "ubuntu"
   }
 
-  # Пост-процессинг для очистки
   provisioner "shell" {
     inline = [
       "sudo apt-get clean",
